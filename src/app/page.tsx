@@ -42,6 +42,7 @@ export default function Home() {
           <h2 className="font-semibold">Compiled Query</h2>
           <pre className="mt-4 rounded-lg bg-slate-950 p-4 text-sm text-emerald-300">
             {`{ "$and": [] }`}
+            {`{ "$and": [] }`}
           </pre>
         </aside>
       </div>
