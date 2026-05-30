@@ -3,7 +3,17 @@
 import SidePanel from "@/components/query-builder/SidePanel";
 import TopBar from "@/components/query-builder/TopBar";
 import { schemas } from "@/data/schema";
-import { CalendarDays, Hash, ListFilter, Mail, Type } from "lucide-react";
+import {
+  CalendarDays,
+  Copy,
+  Download,
+  Hash,
+  ListFilter,
+  Mail,
+  Type,
+  Upload,
+} from "lucide-react";
+import QueryPreview from "@/components/query-builder/QueryPreview";
 import QueryBuilder from "@/components/query-builder/QueryBuilder";
 import { useQueryStore } from "@/store/query-store";
 
@@ -121,11 +131,43 @@ export default function Home() {
               </footer>
             </section>
 
-            <aside className="border-l border-slate-800 p-4">
-              <h2 className="font-semibold">Compiled Query</h2>
-              <pre className="mt-4 rounded-lg bg-slate-950 p-4 text-sm text-emerald-300">
-                {`{ "$and": [] }`}
-              </pre>
+            <aside className="flex border-l border-slate-800 bg-slate-950/80">
+              <div className="flex min-h-0 flex-1 flex-col">
+                <header className="flex items-center justify-between border-b border-slate-800 px-4 py-4">
+                  <h2 className="font-semibold">Compiled Query</h2>
+
+                  <div className="flex items-center gap-2 text-slate-400">
+                    <button
+                      type="button"
+                      aria-label="Upload query"
+                      className="rounded p-1.5 transition hover:bg-slate-800 hover:text-slate-100"
+                    >
+                      <Upload size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Download query"
+                      className="rounded p-1.5 transition hover:bg-slate-800 hover:text-slate-100"
+                    >
+                      <Download size={14} />
+                    </button>
+                    <span className="h-5 w-px bg-slate-800" />
+                    <button
+                      type="button"
+                      aria-label="Copy query"
+                      className="rounded p-1.5 transition hover:bg-slate-800 hover:text-slate-100"
+                    >
+                      <Copy size={14} />
+                    </button>
+                  </div>
+                </header>
+
+                <QueryPreview />
+
+                <footer className="border-t border-slate-800 px-4 py-3 text-xs font-semibold tracking-wide text-slate-400">
+                  Target: MongoDB
+                </footer>
+              </div>
             </aside>
           </div>
         </section>

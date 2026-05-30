@@ -1,7 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
 import { GripVertical, Trash2 } from "lucide-react";
-import type { ConditionNode } from "@/types/query";
+import type {
+  ConditionNode,
+  FieldSchema,
+  QueryOperator,
+  QueryValue,
+} from "@/types/query";
 import { useQueryStore } from "@/store/query-store";
 import { schemas } from "@/data/schema";
 import { OPERATORS_BY_FIELD_TYPE } from "@/lib/query-engine/operators";
@@ -14,6 +20,22 @@ type QueryConditionProps = {
   condition: ConditionNode;
 };
 
+const EMPTY_OPERATORS: QueryOperator[] = [];
+
+const getDefaultValueForField = (
+  field: FieldSchema,
+): QueryValue => {
+  if (field.type === "enum") {
+    return field.options?.[0] ?? "";
+  }
+
+  if (field.type === "boolean") {
+    return false;
+  }
+
+  return "";
+};
+
 export default function QueryCondition({
   condition,
 }: QueryConditionProps) {
@@ -23,12 +45,8 @@ export default function QueryCondition({
     (state) => state.selectedSchemaId,
   );
 
-  const updateConditionField = useQueryStore(
-    (state) => state.updateConditionField,
-  );
-
-  const updateConditionOperator = useQueryStore(
-    (state) => state.updateConditionOperator,
+  const updateCondition = useQueryStore(
+    (state) => state.updateCondition,
   );
 
   const updateConditionValue = useQueryStore(
@@ -39,15 +57,71 @@ export default function QueryCondition({
     (schema) => schema.id === selectedSchemaId,
   );
 
-  if (!activeSchema) return null;
-
   const currentField =
-    activeSchema.fields.find(
+    activeSchema?.fields.find(
       (field) => field.name === condition.field,
-    ) ?? activeSchema.fields[0];
+    ) ?? activeSchema?.fields[0];
 
   const availableOperators =
-    OPERATORS_BY_FIELD_TYPE[currentField.type];
+    currentField
+      ? OPERATORS_BY_FIELD_TYPE[currentField.type]
+      : EMPTY_OPERATORS;
+
+  useEffect(() => {
+    if (!currentField) return;
+
+    const fieldBelongsToActiveSchema =
+      currentField.name === condition.field;
+
+    const firstOperator =
+      OPERATORS_BY_FIELD_TYPE[currentField.type][0];
+
+    if (!fieldBelongsToActiveSchema) {
+      updateCondition(
+        condition.id,
+        {
+          field: currentField.name,
+          operator: firstOperator,
+          value: getDefaultValueForField(currentField),
+        },
+      );
+
+      return;
+    }
+
+    if (!availableOperators.includes(condition.operator)) {
+      updateCondition(
+        condition.id,
+        {
+          operator: firstOperator,
+          value: getDefaultValueForField(currentField),
+        },
+      );
+
+      return;
+    }
+
+    if (
+      currentField.type === "enum" &&
+      condition.value === ""
+    ) {
+      updateConditionValue(
+        condition.id,
+        getDefaultValueForField(currentField),
+      );
+    }
+  }, [
+    availableOperators,
+    condition.field,
+    condition.id,
+    condition.operator,
+    condition.value,
+    currentField,
+    updateCondition,
+    updateConditionValue,
+  ]);
+
+  if (!activeSchema || !currentField) return null;
 
   return (
     <div className="flex items-center gap-3 rounded border border-slate-800 bg-slate-900 px-3 py-3 text-sm">
@@ -67,19 +141,13 @@ export default function QueryCondition({
             const firstOperator =
               OPERATORS_BY_FIELD_TYPE[field.type][0];
 
-            updateConditionField(
+            updateCondition(
               condition.id,
-              field.name,
-            );
-
-            updateConditionOperator(
-              condition.id,
-              firstOperator,
-            );
-
-            updateConditionValue(
-              condition.id,
-              "",
+              {
+                field: field.name,
+                operator: firstOperator,
+                value: getDefaultValueForField(field),
+              },
             );
           }}
         />
@@ -88,9 +156,11 @@ export default function QueryCondition({
           value={condition.operator}
           operators={availableOperators}
           onChange={(operator) =>
-            updateConditionOperator(
+            updateCondition(
               condition.id,
-              operator,
+              {
+                operator,
+              },
             )
           }
         />
