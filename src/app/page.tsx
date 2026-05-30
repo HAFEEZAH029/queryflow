@@ -1,8 +1,11 @@
+"use client";
+
 import SidePanel from "@/components/query-builder/SidePanel";
 import TopBar from "@/components/query-builder/TopBar";
 import { schemas } from "@/data/schema";
 import { CalendarDays, Hash, ListFilter, Mail, Type } from "lucide-react";
 import QueryBuilder from "@/components/query-builder/QueryBuilder";
+import { useQueryStore } from "@/store/query-store";
 
 
 
@@ -24,7 +27,18 @@ const fieldBadgeStyles = {
 
 
 export default function Home() {
-  const activeSchema = schemas[0];
+  const selectedSchemaId = useQueryStore(
+  (state) => state.selectedSchemaId,
+  );
+
+  const setSelectedSchema = useQueryStore(
+  (state) => state.setSelectedSchema,
+  );
+
+  const activeSchema =
+  schemas.find(
+    (schema) => schema.id === selectedSchemaId,
+  ) ?? schemas[0];
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
@@ -44,9 +58,20 @@ export default function Home() {
                       <span className="text-xs text-slate-500">{schemas.length} sources</span>
                     </div>
 
-                    <select className="mt-4 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-200 outline-none" defaultValue={activeSchema.id}>
+                    <select
+                    value={selectedSchemaId}
+                    onChange={(e) =>
+                      setSelectedSchema(e.target.value)
+                    }
+                    className="mt-4 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-200 outline-none"
+                    >
                       {schemas.map((schema) => (
-                        <option key={schema.id}>{schema.label}</option>
+                        <option
+                        key={schema.id}
+                        value={schema.id}
+                        >
+                          {schema.label}
+                        </option>
                       ))}
                     </select>
                   </div>
