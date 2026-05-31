@@ -76,9 +76,15 @@ const removeNodeById = (node: GroupNode, nodeId: string): GroupNode => ({
 
 type QueryStore = {
   rootGroup: GroupNode;
+  selectedSchemaId: string;
+  setSelectedSchema: (id: string) => void;
   addCondition: (groupId: string) => void;
   addGroup: (groupId: string) => void;
   removeNode: (nodeId: string) => void;
+  updateCondition: (
+  conditionId: string,
+  updates: Partial<ConditionNode>
+  ) => void;
   toggleLogic: (groupId: string) => void;
   toggleCollapsed: (groupId: string) => void;
   updateConditionField: (conditionId: string, field: string) => void;
@@ -91,6 +97,13 @@ type QueryStore = {
 
 export const useQueryStore = create<QueryStore>((set) => ({
   rootGroup: createInitialRootGroup(),
+
+  selectedSchemaId: "users",
+
+  setSelectedSchema: (id) =>
+    set({
+      selectedSchemaId: id,
+  }),
 
   addCondition: (groupId) =>
     set((state) => ({
@@ -118,6 +131,18 @@ export const useQueryStore = create<QueryStore>((set) => ({
         rootGroup: removeNodeById(state.rootGroup, nodeId),
       };
     }),
+
+    updateCondition: (conditionId, updates) =>
+  set((state) => ({
+    rootGroup: updateCondition(
+      state.rootGroup,
+      conditionId,
+      (condition) => ({
+        ...condition,
+        ...updates,
+      }),
+    ),
+  })),
 
   toggleLogic: (groupId) =>
     set((state) => ({
