@@ -4,6 +4,9 @@ import { ChevronDown, ChevronRight, GripVertical, Plus, Trash2 } from "lucide-re
 import type { GroupNode } from "@/types/query";
 import { useQueryStore } from "@/store/query-store";
 import QueryCondition from "./QueryCondition";
+import { schemas } from "@/data/schema";
+import { validateQuery, getNodeError } from "@/lib/query-engine/validate-query";
+
 
 type QueryGroupProps = {
   group: GroupNode;
@@ -16,9 +19,21 @@ export default function QueryGroup({ group, isRoot = false }: QueryGroupProps) {
   const removeNode = useQueryStore((state) => state.removeNode);
   const toggleLogic = useQueryStore((state) => state.toggleLogic);
   const toggleCollapsed = useQueryStore((state) => state.toggleCollapsed);
+  const rootGroup = useQueryStore((state) => state.rootGroup);
+  const selectedSchemaId = useQueryStore((state) => state.selectedSchemaId);
+
+  const activeSchema =
+    schemas.find((schema) => schema.id === selectedSchemaId) ?? schemas[0];
+
+  const validationErrors = validateQuery(rootGroup, activeSchema);
+  const groupError = getNodeError(validationErrors, group.id);
+
+
+
+
 
   return (
-    <div className="rounded-lg border border-slate-700 bg-slate-950/60 p-4">
+    <div className="rounded-lg border border-slate-700 bg-slate-950/60 p-3">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <GripVertical size={16} className="text-slate-500" />
@@ -57,13 +72,19 @@ export default function QueryGroup({ group, isRoot = false }: QueryGroupProps) {
         )}
       </div>
 
+      {groupError && (
+        <p className="mt-3 text-xs text-rose-300">
+          {groupError.message}
+        </p>
+      )}
+
       {!group.collapsed && (
-        <div className="mt-4 space-y-3 border-l border-slate-800 pl-4">
+        <div className="mt-3 space-y-2 border-l border-slate-800 pl-3">
           {group.children.map((child) =>
             child.type === "group" ? (
               <QueryGroup key={child.id} group={child} />
             ) : (
-              <QueryCondition key={child.id} condition={child} />
+              <QueryCondition key={child.id} condition={child} error={getNodeError(validationErrors, child.id)?.message} />
             ),
           )}
 
