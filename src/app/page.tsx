@@ -16,6 +16,8 @@ import {
 import QueryPreview from "@/components/query-builder/QueryPreview";
 import QueryBuilder from "@/components/query-builder/QueryBuilder";
 import { useQueryStore } from "@/store/query-store";
+import { validateQuery } from "@/lib/query-engine/validate-query";
+
 
 
 
@@ -49,6 +51,9 @@ export default function Home() {
   schemas.find(
     (schema) => schema.id === selectedSchemaId,
   ) ?? schemas[0];
+
+  const rootGroup = useQueryStore((state) => state.rootGroup);
+  const validationErrors = validateQuery(rootGroup, activeSchema);
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
@@ -117,17 +122,40 @@ export default function Home() {
                   </div>
                 </aside>
 
-                <section className="p-6">
+                <section className="p-4">
                   <h2 className="font-semibold">Visual Query Builder</h2>
 
-                  <div className="scrollbar-hidden mt-4 h-[calc(100vh-220px)] overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 p-6">
+                  <div className="scrollbar-hidden mt-4 h-[calc(100vh-220px)] overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 p-4">
                     <QueryBuilder />
                   </div>
                 </section>
               </div>
 
               <footer className="border-t border-slate-800 p-4">
-                Results Preview
+                <div className="flex items-center gap-3">
+                  <span className="font-semibold">Results Preview</span>
+
+                  {validationErrors.length > 0 ? (
+                    <span className="text-sm text-rose-300">
+                      Validation Blocked
+                    </span>
+                  ) : (
+                    <span className="text-sm text-emerald-300">
+                      Query Valid
+                    </span>
+                  )}
+                </div>
+
+                  {validationErrors.length > 0 && (
+                    <div className="mt-6 rounded-lg border border-rose-500/40 bg-rose-500/10 p-6 text-center">
+                      <p className="font-medium text-rose-200">
+                        Cannot execute query
+                      </p>
+                      <p className="mt-2 text-sm text-slate-300">
+                        Please fix the validation errors in the query builder.
+                      </p>
+                    </div>
+                  )}
               </footer>
             </section>
 
