@@ -17,7 +17,7 @@ export default function OperatorSelector({
       onChange={(e) =>
         onChange(e.target.value as QueryOperator)
       }
-      className="rounded border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+      className="w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
     >
       {operators.map((operator) => (
         <option key={operator} value={operator}>
