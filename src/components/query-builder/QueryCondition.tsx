@@ -18,6 +18,7 @@ import ValueInput from "./ValueInput";
 
 type QueryConditionProps = {
   condition: ConditionNode;
+  error?: string;
 };
 
 const EMPTY_OPERATORS: QueryOperator[] = [];
@@ -37,7 +38,7 @@ const getDefaultValueForField = (
 };
 
 export default function QueryCondition({
-  condition,
+  condition, error,
 }: QueryConditionProps) {
   const removeNode = useQueryStore((state) => state.removeNode);
 
@@ -123,11 +124,20 @@ export default function QueryCondition({
 
   if (!activeSchema || !currentField) return null;
 
+  const conditionGridClass =
+    condition.operator === "between"
+      ? "grid flex-1 grid-cols-[minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1.45fr)] gap-2"
+      : "grid flex-1 grid-cols-3 gap-2";
+
   return (
-    <div className="flex items-center gap-3 rounded border border-slate-800 bg-slate-900 px-3 py-3 text-sm">
+    <div className={`flex items-center gap-2 rounded border border-slate-900 bg-slate-900 px-2 py-2 text-sm ${
+         error ? "border-rose-500/60" : "border-slate-800"
+         }`}
+    >
       <GripVertical size={16} className="text-slate-500" />
 
-      <div className="grid flex-1 grid-cols-3 gap-3">
+     <div className="flex-1">
+      <div className={conditionGridClass}>
         <FieldSelector
           value={condition.field}
           options={activeSchema.fields}
@@ -167,6 +177,7 @@ export default function QueryCondition({
 
         <ValueInput
           fieldType={currentField.type}
+          operator={condition.operator}
           value={condition.value}
           options={currentField.options}
           onChange={(value) =>
@@ -177,6 +188,15 @@ export default function QueryCondition({
           }
         />
       </div>
+
+      {error && (
+        <p className="mt-2 text-xs text-rose-300">
+          {error}
+        </p>
+      )}
+     </div>
+
+
 
       <button
         type="button"
