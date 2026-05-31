@@ -2,6 +2,9 @@ import SidePanel from "@/components/query-builder/SidePanel";
 import TopBar from "@/components/query-builder/TopBar";
 import { schemas } from "@/data/schema";
 import { CalendarDays, Hash, ListFilter, Mail, Type } from "lucide-react";
+import QueryBuilder from "@/components/query-builder/QueryBuilder";
+
+
 
 const fieldIcons = {
   date: CalendarDays,
@@ -31,8 +34,8 @@ export default function Home() {
         <section className="flex min-w-0 flex-col">
           <TopBar />
 
-          <div className="grid flex-1 grid-cols-[1fr_360px]">
-            <section className="flex min-w-0 flex-col">
+          <div className="grid flex-1 grid-cols-[1fr_360px] overflow-hidden">
+            <section className="flex min-w-0 flex-col overflow-hidden">
               <div className="grid flex-1 grid-cols-[260px_1fr]">
                 <aside className="border-r border-slate-800 bg-slate-950/70">
                   <div className="border-b border-slate-800 p-4">
@@ -41,7 +44,7 @@ export default function Home() {
                       <span className="text-xs text-slate-500">{schemas.length} sources</span>
                     </div>
 
-                    <select className="mt-4 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-200 outline-none">
+                    <select className="mt-4 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-200 outline-none" defaultValue={activeSchema.id}>
                       {schemas.map((schema) => (
                         <option key={schema.id}>{schema.label}</option>
                       ))}
@@ -81,8 +84,9 @@ export default function Home() {
 
                 <section className="p-6">
                   <h2 className="font-semibold">Visual Query Builder</h2>
-                  <div className="mt-4 rounded-lg border border-slate-700 bg-slate-900 p-6">
-                    Builder placeholder
+
+                  <div className="scrollbar-hidden mt-4 h-[calc(100vh-220px)] overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 p-6">
+                    <QueryBuilder />
                   </div>
                 </section>
               </div>
@@ -95,7 +99,6 @@ export default function Home() {
             <aside className="border-l border-slate-800 p-4">
               <h2 className="font-semibold">Compiled Query</h2>
               <pre className="mt-4 rounded-lg bg-slate-950 p-4 text-sm text-emerald-300">
-                {`{ "$and": [] }`}
                 {`{ "$and": [] }`}
               </pre>
             </aside>
