@@ -16,8 +16,7 @@ import {
 import QueryPreview from "@/components/query-builder/QueryPreview";
 import QueryBuilder from "@/components/query-builder/QueryBuilder";
 import { useQueryStore } from "@/store/query-store";
-import { validateQuery } from "@/lib/query-engine/validate-query";
-
+import ResultPanel from "@/components/query-builder/ResultPanel";
 
 
 
@@ -52,8 +51,6 @@ export default function Home() {
     (schema) => schema.id === selectedSchemaId,
   ) ?? schemas[0];
 
-  const rootGroup = useQueryStore((state) => state.rootGroup);
-  const validationErrors = validateQuery(rootGroup, activeSchema);
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
@@ -131,32 +128,7 @@ export default function Home() {
                 </section>
               </div>
 
-              <footer className="border-t border-slate-800 p-4">
-                <div className="flex items-center gap-3">
-                  <span className="font-semibold">Results Preview</span>
-
-                  {validationErrors.length > 0 ? (
-                    <span className="text-sm text-rose-300">
-                      Validation Blocked
-                    </span>
-                  ) : (
-                    <span className="text-sm text-emerald-300">
-                      Query Valid
-                    </span>
-                  )}
-                </div>
-
-                  {validationErrors.length > 0 && (
-                    <div className="mt-6 rounded-lg border border-rose-500/40 bg-rose-500/10 p-6 text-center">
-                      <p className="font-medium text-rose-200">
-                        Cannot execute query
-                      </p>
-                      <p className="mt-2 text-sm text-slate-300">
-                        Please fix the validation errors in the query builder.
-                      </p>
-                    </div>
-                  )}
-              </footer>
+              <ResultPanel />
             </section>
 
             <aside className="flex border-l border-slate-800 bg-slate-950/80">
