@@ -7,6 +7,13 @@ import type {
   QueryOperator,
   QueryValue,
 } from "@/types/query";
+import { schemas } from "@/data/schema";
+import { mockData } from "@/data/mock-data";
+import { validateQuery } from "@/lib/query-engine/validate-query";
+import { executeQuery } from "@/lib/query-engine/execute-query";
+
+
+
 
 const createId = () => crypto.randomUUID();
 
@@ -86,6 +93,9 @@ type QueryStore = {
   updates: Partial<ConditionNode>
   ) => void;
   toggleLogic: (groupId: string) => void;
+  executionStatus: "idle" | "loading" | "success" | "empty" | "error";
+  results: Record<string, string | number | boolean>[];
+  runQuery: () => void;
   toggleCollapsed: (groupId: string) => void;
   updateConditionField: (conditionId: string, field: string) => void;
   updateConditionOperator: (
@@ -97,6 +107,10 @@ type QueryStore = {
 
 export const useQueryStore = create<QueryStore>((set) => ({
   rootGroup: createInitialRootGroup(),
+
+  executionStatus: "idle",
+
+  results: [],
 
   selectedSchemaId: "users",
 
@@ -151,6 +165,29 @@ export const useQueryStore = create<QueryStore>((set) => ({
         logic: group.logic === "AND" ? "OR" : "AND",
       })),
     })),
+
+    runQuery: () =>
+  set((state) => {
+    const activeSchema =
+      schemas.find((schema) => schema.id === state.selectedSchemaId) ?? schemas[0];
+
+    const validationErrors = validateQuery(state.rootGroup, activeSchema);
+
+    if (validationErrors.length > 0) {
+      return {
+        executionStatus: "error",
+        results: [],
+      };
+    }
+
+    const dataset = mockData[state.selectedSchemaId as keyof typeof mockData] ?? [];
+    const results = executeQuery(dataset, state.rootGroup);
+
+    return {
+      executionStatus: results.length > 0 ? "success" : "empty",
+      results,
+    };
+  }),
 
   toggleCollapsed: (groupId) =>
     set((state) => ({

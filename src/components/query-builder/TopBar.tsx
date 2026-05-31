@@ -1,4 +1,8 @@
+"use client";
+
 import { Keyboard, Moon, Play, Save, Search, UserCircle } from "lucide-react";
+import { useQueryStore } from "@/store/query-store";
+
 
 const shortcuts = [
   { action: "Run Query", keys: "Ctrl + Enter" },
@@ -7,6 +11,11 @@ const shortcuts = [
 ];
 
 export default function TopBar() {
+
+  const runQuery = useQueryStore((state) => state.runQuery);
+  const executionStatus = useQueryStore((state) => state.executionStatus);
+
+
   return (
     <header className="flex h-16 items-center justify-between border-b border-slate-800 bg-slate-900/60 px-4">
       <div className="relative w-full max-w-sm">
@@ -34,9 +43,10 @@ export default function TopBar() {
         <button
           className="flex h-9 items-center gap-2 rounded bg-emerald-500 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"
           type="button"
+          onClick={runQuery}
         >
           <Play size={15} />
-          <span>Run</span>
+          <span>{executionStatus === "loading" ? "Running..." : "Run"}</span>
         </button>
 
         <div className="mx-2 h-7 w-px bg-slate-800" />
