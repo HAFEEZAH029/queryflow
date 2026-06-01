@@ -3,6 +3,8 @@ import type {
   GroupNode,
   QueryNode,
 } from "@/types/query";
+import { sanitizeValue } from "./sanitize-query";
+
 
 function generateCondition(
   condition: ConditionNode,
@@ -13,37 +15,39 @@ function generateCondition(
     value,
   } = condition;
 
+  const safeValue = sanitizeValue(value);
+
   switch (operator) {
     case "equals":
       return {
-        [field]: value,
+        [field]: safeValue,
       };
 
     case "notEquals":
       return {
         [field]: {
-          $ne: value,
+          $ne: safeValue,
         },
       };
 
     case "greaterThan":
       return {
         [field]: {
-          $gt: value,
+          $gt: safeValue,
         },
       };
 
     case "lessThan":
       return {
         [field]: {
-          $lt: value,
+          $lt: safeValue,
         },
       };
 
     case "contains":
       return {
         [field]: {
-          $regex: value,
+          $regex: safeValue,
           $options: "i",
         },
       };
@@ -51,12 +55,12 @@ function generateCondition(
     case "startsWith":
       return {
         [field]: {
-          $regex: `^${value}`,
+          $regex: `^${safeValue}`,
         },
       };
 
     case "between": {
-        const range = Array.isArray(value) ? value : ["", ""];
+        const range = Array.isArray(safeValue) ? safeValue : ["", ""];
 
         return {
             [field]: {
@@ -69,15 +73,15 @@ function generateCondition(
     case "inArray":
       return {
         [field]: {
-          $in: Array.isArray(value)
-            ? value
-            : [value],
+          $in: Array.isArray(safeValue)
+            ? safeValue
+            : [safeValue],
         },
       };
 
     default:
       return {
-        [field]: value,
+        [field]: safeValue,
       };
   }
 }
