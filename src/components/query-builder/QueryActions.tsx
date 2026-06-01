@@ -5,24 +5,8 @@ import { Copy, Download, Upload } from "lucide-react";
 import { useQueryStore } from "@/store/query-store";
 import { generateQuery } from "@/lib/query-engine/generate-query";
 import { formatQuery } from "@/lib/query-engine/format-query";
-import type { GroupNode } from "@/types/query";
+import { isValidImportedRootGroup } from "@/lib/query-engine/validate-import";
 
-type ImportedQuery = {
-  selectedSchemaId?: string;
-  rootGroup: GroupNode;
-};
-
-const isValidImportedQuery = (data: unknown): data is ImportedQuery => {
-  if (!data || typeof data !== "object") return false;
-
-  const query = data as ImportedQuery;
-
-  if (!query.rootGroup) return false;
-  if (query.rootGroup.type !== "group") return false;
-  if (!Array.isArray(query.rootGroup.children)) return false;
-
-  return true;
-};
 
 export default function QueryActions() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -67,14 +51,22 @@ export default function QueryActions() {
       const text = await file.text();
       const parsed = JSON.parse(text);
 
-      if (!isValidImportedQuery(parsed)) {
-        throw new Error("Invalid query JSON");
-      }
+      if (
+        !parsed ||
+        typeof parsed !== "object" ||
+        !("rootGroup" in parsed) ||
+        !isValidImportedRootGroup(parsed.rootGroup)
+      ) {
+          throw new Error("Invalid query JSON");
+        }
 
-      if (parsed.selectedSchemaId) {
-        setSelectedSchema(parsed.selectedSchemaId);
-      }
+      const importedSchemaId =
+        "selectedSchemaId" in parsed &&
+        typeof parsed.selectedSchemaId === "string"
+        ? parsed.selectedSchemaId
+        : selectedSchemaId;
 
+      setSelectedSchema(importedSchemaId);
       setRootGroup(parsed.rootGroup);
     } catch {
       alert("Invalid query JSON. Please upload a valid QueryFlow export.");
