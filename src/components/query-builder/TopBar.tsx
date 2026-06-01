@@ -86,13 +86,13 @@ export default function TopBar() {
         <div className="group relative">
           <button
             aria-label="Keyboard shortcuts"
-            className="flex size-9 items-center justify-center rounded text-slate-300 transition hover:bg-slate-800 hover:text-white focus:bg-slate-800 focus:text-white focus:outline-none"
+            className="flex size-9 items-center justify-center rounded text-slate-300 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-slate-800 hover:text-white focus:-translate-y-0.5 focus:bg-slate-800 focus:text-white focus:outline-none"
             type="button"
           >
             <Keyboard size={20} />
           </button>
 
-          <div className="pointer-events-none absolute right-0 top-11 z-20 w-44 rounded border border-slate-700 bg-slate-950 px-3 py-2 opacity-0 shadow-xl shadow-slate-950/50 transition group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
+          <div className="pointer-events-none absolute right-0 top-11 z-20 w-44 origin-top-right translate-y-1 scale-95 rounded border border-slate-700 bg-slate-950 px-3 py-2 opacity-0 shadow-xl shadow-slate-950/50 transition-all duration-200 ease-out group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:scale-100 group-focus-within:opacity-100">
             <p className="mb-2 text-[11px] font-semibold text-slate-400">
               Keyboard Shortcuts
             </p>
