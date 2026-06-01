@@ -8,8 +8,8 @@ export default function HistoryPanel() {
   const restoreHistoryItem = useQueryStore((state) => state.restoreHistoryItem);
 
   return (
-    <div className="border-t border-slate-800 p-4">
-      <div className="flex items-center justify-between">
+    <div className="flex max-h-72 min-h-0 flex-col border-t border-slate-800 p-4">
+      <div className="flex shrink-0 items-center justify-between">
         <h2 className="font-semibold">Query History</h2>
         <span className="text-xs text-slate-500">{history.length} saved runs</span>
       </div>
@@ -19,7 +19,7 @@ export default function HistoryPanel() {
           Run a query to save it in history.
         </p>
       ) : (
-        <div className="scrollbar-hidden mt-4 max-h-64 space-y-3 overflow-y-auto pr-1">
+        <div className="scrollbar-hidden mt-4 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
           {history.map((item) => (
             <div
               key={item.id}

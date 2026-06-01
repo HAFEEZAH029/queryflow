@@ -24,6 +24,10 @@ export default function ResultPanel() {
             <span className="text-sm text-amber-300">No matches found</span>
           )}
 
+          {executionStatus === "loading" && (
+            <span className="text-sm text-indigo-300">Running...</span>
+          )}
+
           {executionStatus === "error" && (
             <span className="text-sm text-rose-300">Validation Blocked</span>
           )}
@@ -48,6 +52,15 @@ export default function ResultPanel() {
           <p className="font-medium text-slate-200">No records matched</p>
           <p className="mt-2 text-sm text-slate-400">
             Try adjusting your filters or switching the query logic.
+          </p>
+        </div>
+      )}
+
+      {executionStatus === "loading" && (
+        <div className="mt-4 rounded-lg border border-slate-800 bg-slate-900 p-5 text-center">
+          <p className="font-medium text-slate-200">Running query...</p>
+          <p className="mt-2 text-sm text-slate-400">
+            Filtering records from the selected dataset.
           </p>
         </div>
       )}

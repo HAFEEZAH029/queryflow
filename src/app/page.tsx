@@ -5,19 +5,17 @@ import TopBar from "@/components/query-builder/TopBar";
 import { schemas } from "@/data/schema";
 import {
   CalendarDays,
-  Copy,
-  Download,
   Hash,
   ListFilter,
   Mail,
   Type,
-  Upload,
 } from "lucide-react";
 import QueryPreview from "@/components/query-builder/QueryPreview";
 import QueryBuilder from "@/components/query-builder/QueryBuilder";
 import { useQueryStore } from "@/store/query-store";
 import ResultPanel from "@/components/query-builder/ResultPanel";
 import HistoryPanel from "@/components/query-builder/HistoryPanel";
+import QueryActions from "@/components/query-builder/QueryActions";
 
 
 
@@ -47,6 +45,8 @@ export default function Home() {
   (state) => state.setSelectedSchema,
   );
 
+  const theme = useQueryStore((state) => state.theme);
+
   const activeSchema =
   schemas.find(
     (schema) => schema.id === selectedSchemaId,
@@ -54,7 +54,11 @@ export default function Home() {
 
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
+    <main
+      className={`min-h-screen bg-(--app-bg) text-(--text-primary) ${
+        theme === "dark" ? "theme-dark" : "theme-light"
+      }`}
+    >
       <div className="grid min-h-screen grid-cols-[240px_1fr]">
         <SidePanel />
 
@@ -138,30 +142,7 @@ export default function Home() {
                 <header className="flex items-center justify-between border-b border-slate-800 px-4 py-4">
                   <h2 className="font-semibold">Compiled Query</h2>
 
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <button
-                      type="button"
-                      aria-label="Upload query"
-                      className="rounded p-1.5 transition hover:bg-slate-800 hover:text-slate-100"
-                    >
-                      <Upload size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Download query"
-                      className="rounded p-1.5 transition hover:bg-slate-800 hover:text-slate-100"
-                    >
-                      <Download size={14} />
-                    </button>
-                    <span className="h-5 w-px bg-slate-800" />
-                    <button
-                      type="button"
-                      aria-label="Copy query"
-                      className="rounded p-1.5 transition hover:bg-slate-800 hover:text-slate-100"
-                    >
-                      <Copy size={14} />
-                    </button>
-                  </div>
+                  <QueryActions />
                 </header>
 
                 <QueryPreview />
