@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useRef } from "react";
+import { ChangeEvent, useCallback, useRef, useEffect } from "react";
 import { Copy, Download, Upload } from "lucide-react";
 import { useQueryStore } from "@/store/query-store";
 import { generateQuery } from "@/lib/query-engine/generate-query";
@@ -37,26 +37,26 @@ export default function QueryActions() {
     await navigator.clipboard.writeText(formatQuery(query));
   };
 
-  const handleExport = () => {
-    const payload = {
-      selectedSchemaId,
-      rootGroup,
-      exportedAt: new Date().toISOString(),
-    };
-
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {
-      type: "application/json",
-    });
-
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-
-    anchor.href = url;
-    anchor.download = "queryflow-query.json";
-    anchor.click();
-
-    URL.revokeObjectURL(url);
+  const handleExport = useCallback(() => {
+  const payload = {
+    selectedSchemaId,
+    rootGroup,
+    exportedAt: new Date().toISOString(),
   };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+
+  anchor.href = url;
+  anchor.download = "queryflow-query.json";
+  anchor.click();
+
+  URL.revokeObjectURL(url);
+  }, [rootGroup, selectedSchemaId]);
 
   const handleImport = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -82,6 +82,26 @@ export default function QueryActions() {
       event.target.value = "";
     }
   };
+
+  useEffect(() => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.ctrlKey && event.key.toLowerCase() === "s") {
+      event.preventDefault();
+      handleExport();
+    }
+
+    if (event.ctrlKey && event.key.toLowerCase() === "i") {
+      event.preventDefault();
+      fileInputRef.current?.click();
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+  }, [handleExport]);
 
   return (
     <div className="flex items-center gap-2 text-slate-400">
