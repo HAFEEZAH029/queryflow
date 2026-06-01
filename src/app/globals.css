@@ -52,89 +52,175 @@
   --shadow: rgba(15, 23, 42, 0.12);
 }
 
+.theme-dark,
+.theme-light {
+  background-color: var(--app-bg);
+  color: var(--text-primary);
+}
+
+.theme-dark .bg-\[\#0F172A\],
+.theme-dark .bg-slate-950,
+.theme-dark .bg-slate-950\/60,
+.theme-dark .bg-slate-950\/70,
+.theme-dark .bg-slate-950\/80 {
+  background-color: var(--surface-strong) !important;
+}
+
+.theme-dark .bg-slate-900,
+.theme-dark .bg-slate-900\/60,
+.theme-dark .bg-slate-900\/70 {
+  background-color: var(--surface) !important;
+}
+
+.theme-dark .border-slate-900,
+.theme-dark .border-slate-800,
+.theme-dark .border-slate-700 {
+  border-color: var(--border) !important;
+}
+
+.theme-dark .divide-slate-800 > :not(:last-child) {
+  border-color: var(--border) !important;
+}
+
+.theme-dark .text-slate-100,
+.theme-dark .text-slate-200 {
+  color: var(--text-primary) !important;
+}
+
+.theme-dark .text-slate-300 {
+  color: var(--text-secondary) !important;
+}
+
+.theme-dark .text-slate-400,
+.theme-dark .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+
+.theme-dark .text-emerald-300 {
+  color: #34d399 !important;
+}
+
+.theme-dark .text-indigo-300 {
+  color: #a5b4fc !important;
+}
+
+.theme-dark .bg-indigo-600 {
+  background-color: var(--secondary) !important;
+}
+
+.theme-dark .bg-indigo-500\/15 {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+.theme-dark input,
+.theme-dark select,
+.theme-dark textarea {
+  background-color: var(--surface-strong);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.theme-dark input::placeholder,
+.theme-dark textarea::placeholder {
+  color: var(--text-muted);
+}
+
 .theme-light .bg-\[\#0F172A\],
 .theme-light .bg-slate-950,
 .theme-light .bg-slate-950\/60,
 .theme-light .bg-slate-950\/70,
 .theme-light .bg-slate-950\/80 {
-  background-color: var(--surface);
+  background-color: var(--surface) !important;
 }
 
 .theme-light .bg-slate-900,
 .theme-light .bg-slate-900\/60,
 .theme-light .bg-slate-900\/70 {
-  background-color: var(--surface-muted);
+  background-color: var(--surface-muted) !important;
 }
 
 .theme-light .border-slate-900,
 .theme-light .border-slate-800,
 .theme-light .border-slate-700 {
-  border-color: var(--border);
+  border-color: var(--border) !important;
 }
 
 .theme-light .divide-slate-800 > :not(:last-child) {
-  border-color: var(--border);
+  border-color: var(--border) !important;
 }
 
 .theme-light .text-slate-100,
 .theme-light .text-slate-200,
 .theme-light .text-slate-300 {
-  color: var(--text-secondary);
+  color: var(--text-secondary) !important;
 }
 
 .theme-light .text-slate-400,
 .theme-light .text-slate-500 {
-  color: var(--text-muted);
+  color: var(--text-muted) !important;
 }
 
 .theme-light .text-emerald-300 {
-  color: #047857;
+  color: #047857 !important;
 }
 
 .theme-light .text-indigo-300 {
-  color: var(--secondary);
+  color: var(--secondary) !important;
 }
 
 .theme-light .text-rose-300,
 .theme-light .text-rose-200 {
-  color: #be123c;
+  color: #be123c !important;
 }
 
 .theme-light .text-amber-300 {
-  color: #b45309;
+  color: #b45309 !important;
 }
 
 .theme-light .text-cyan-300 {
-  color: #0e7490;
+  color: #0e7490 !important;
 }
 
 .theme-light .bg-indigo-600 {
-  background-color: var(--secondary);
+  background-color: var(--secondary) !important;
 }
 
 .theme-light .bg-indigo-500\/15 {
-  background-color: rgba(100, 116, 139, 0.14);
+  background-color: rgba(100, 116, 139, 0.14) !important;
 }
 
 .theme-light .bg-slate-800,
 .theme-light .hover\:bg-slate-800:hover,
 .theme-light .focus\:bg-slate-800:focus {
-  background-color: var(--surface-strong);
+  background-color: var(--surface-strong) !important;
 }
 
 .theme-light .hover\:border-slate-600:hover {
-  border-color: var(--border-strong);
+  border-color: var(--border-strong) !important;
 }
 
 .theme-light .hover\:text-white:hover,
 .theme-light .focus\:text-white:focus,
 .theme-light .hover\:text-slate-100:hover {
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
 }
 
 .theme-light .shadow-slate-950\/50 {
   --tw-shadow-color: var(--shadow);
   --tw-shadow: var(--tw-shadow-colored);
+}
+
+.theme-light input,
+.theme-light select,
+.theme-light textarea {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+.theme-light input::placeholder,
+.theme-light textarea::placeholder {
+  color: var(--text-muted);
 }
 
 body {

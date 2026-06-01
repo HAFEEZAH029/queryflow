@@ -1,24 +1,109 @@
 "use client";
 
-import { ChevronDown, ChevronRight, GripVertical, Plus, Trash2 } from "lucide-react";
-import type { GroupNode } from "@/types/query";
+import {
+  ChevronDown,
+  ChevronRight,
+  GripVertical,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { GroupNode, QueryNode } from "@/types/query";
 import { useQueryStore } from "@/store/query-store";
 import QueryCondition from "./QueryCondition";
 import { schemas } from "@/data/schema";
-import { validateQuery, getNodeError } from "@/lib/query-engine/validate-query";
-
+import {
+  getNodeError,
+  validateQuery,
+} from "@/lib/query-engine/validate-query";
 
 type QueryGroupProps = {
   group: GroupNode;
   isRoot?: boolean;
+  dndPath?: string;
 };
 
-export default function QueryGroup({ group, isRoot = false }: QueryGroupProps) {
+type SortableQueryNodeProps = {
+  node: QueryNode;
+  validationErrors: ReturnType<typeof validateQuery>;
+  dndPath: string;
+};
+
+function SortableQueryNode({
+  node,
+  validationErrors,
+  dndPath,
+}: SortableQueryNodeProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: node.id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={isDragging ? "relative z-10 opacity-60" : "relative"}
+    >
+      <div className="flex gap-2">
+        <button
+          type="button"
+          aria-label="Drag to reorder"
+          className="mt-3 shrink-0 cursor-grab touch-none rounded p-1 text-slate-500 transition hover:text-slate-300 active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical size={16} />
+        </button>
+
+        <div className="min-w-0 flex-1">
+          {node.type === "group" ? (
+            <QueryGroup group={node} dndPath={dndPath} />
+          ) : (
+            <QueryCondition
+              condition={node}
+              error={getNodeError(validationErrors, node.id)?.message}
+              hideDragHandle
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function QueryGroup({
+  group,
+  isRoot = false,
+  dndPath = "root",
+}: QueryGroupProps) {
   const addCondition = useQueryStore((state) => state.addCondition);
   const addGroup = useQueryStore((state) => state.addGroup);
   const removeNode = useQueryStore((state) => state.removeNode);
   const toggleLogic = useQueryStore((state) => state.toggleLogic);
   const toggleCollapsed = useQueryStore((state) => state.toggleCollapsed);
+  const reorderChildren = useQueryStore((state) => state.reorderChildren);
   const rootGroup = useQueryStore((state) => state.rootGroup);
   const selectedSchemaId = useQueryStore((state) => state.selectedSchemaId);
 
@@ -28,12 +113,22 @@ export default function QueryGroup({ group, isRoot = false }: QueryGroupProps) {
   const validationErrors = validateQuery(rootGroup, activeSchema);
   const groupError = getNodeError(validationErrors, group.id);
 
+  const childIds = group.children.map((child) => child.id);
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
 
+    if (!over || active.id === over.id) return;
 
+    reorderChildren(group.id, String(active.id), String(over.id));
+  };
 
   return (
-    <div className="rounded-lg border border-slate-700 bg-slate-950/60 p-3">
+    <div
+      className={`rounded-lg border bg-slate-950/60 p-3 ${
+        groupError ? "border-rose-500/50" : "border-slate-700"
+      }`}
+    >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <GripVertical size={16} className="text-slate-500" />
@@ -44,7 +139,11 @@ export default function QueryGroup({ group, isRoot = false }: QueryGroupProps) {
             className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
             aria-label={group.collapsed ? "Expand group" : "Collapse group"}
           >
-            {group.collapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+            {group.collapsed ? (
+              <ChevronRight size={16} />
+            ) : (
+              <ChevronDown size={16} />
+            )}
           </button>
 
           <button
@@ -73,20 +172,32 @@ export default function QueryGroup({ group, isRoot = false }: QueryGroupProps) {
       </div>
 
       {groupError && (
-        <p className="mt-3 text-xs text-rose-300">
-          {groupError.message}
-        </p>
+        <p className="mt-3 text-xs text-rose-300">{groupError.message}</p>
       )}
 
       {!group.collapsed && (
         <div className="mt-3 space-y-2 border-l border-slate-800 pl-3">
-          {group.children.map((child) =>
-            child.type === "group" ? (
-              <QueryGroup key={child.id} group={child} />
-            ) : (
-              <QueryCondition key={child.id} condition={child} error={getNodeError(validationErrors, child.id)?.message} />
-            ),
-          )}
+          <DndContext
+            id={`query-group-${dndPath}`}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={childIds}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-2">
+                {group.children.map((child, index) => (
+                  <SortableQueryNode
+                    key={child.id}
+                    node={child}
+                    validationErrors={validationErrors}
+                    dndPath={`${dndPath}-${index}`}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
 
           <div className="flex flex-wrap gap-2 pt-2">
             <button

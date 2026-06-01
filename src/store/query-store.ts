@@ -17,16 +17,22 @@ import { presets } from "@/data/presets";
 
 const createId = () => crypto.randomUUID();
 
-const createCondition = (): ConditionNode => ({
-  id: createId(),
+const INITIAL_ROOT_GROUP_ID = "root-group";
+const INITIAL_CONDITION_ID = "initial-condition";
+
+const createCondition = (id = createId()): ConditionNode => ({
+  id,
   type: "condition",
   field: "status",
   operator: "equals",
   value: "active",
 });
 
-const createGroup = (logic: QueryLogic = "AND"): GroupNode => ({
-  id: createId(),
+const createGroup = (
+  logic: QueryLogic = "AND",
+  id = createId(),
+): GroupNode => ({
+  id,
   type: "group",
   logic,
   collapsed: false,
@@ -34,8 +40,8 @@ const createGroup = (logic: QueryLogic = "AND"): GroupNode => ({
 });
 
 const createInitialRootGroup = (): GroupNode => ({
-  ...createGroup("AND"),
-  children: [createCondition()],
+  ...createGroup("AND", INITIAL_ROOT_GROUP_ID),
+  children: [createCondition(INITIAL_CONDITION_ID)],
 });
 
 const updateGroup = (
@@ -119,6 +125,39 @@ export type QueryHistoryItem = {
   createdAt: string;
 };
 
+const reorderGroupChildren = (
+  node: GroupNode,
+  groupId: string,
+  activeId: string,
+  overId: string,
+): GroupNode => {
+  if (node.id === groupId) {
+    const oldIndex = node.children.findIndex((child) => child.id === activeId);
+    const newIndex = node.children.findIndex((child) => child.id === overId);
+
+    if (oldIndex === -1 || newIndex === -1) return node;
+
+    const reorderedChildren = [...node.children];
+    const [movedItem] = reorderedChildren.splice(oldIndex, 1);
+
+    reorderedChildren.splice(newIndex, 0, movedItem);
+
+    return {
+      ...node,
+      children: reorderedChildren,
+    };
+  }
+
+  return {
+    ...node,
+    children: node.children.map((child) =>
+      child.type === "group"
+        ? reorderGroupChildren(child, groupId, activeId, overId)
+        : child,
+    ),
+  };
+};
+
 type QueryStore = {
   rootGroup: GroupNode;
   selectedSchemaId: string;
@@ -150,6 +189,11 @@ type QueryStore = {
   restoreHistoryItem: (historyId: string) => void;
   theme: "dark" | "light";
   toggleTheme: () => void;
+  reorderChildren: (
+  groupId: string,
+  activeId: string,
+  overId: string,
+  ) => void;
 };
 
 export const useQueryStore = create<QueryStore>((set) => ({
@@ -168,6 +212,16 @@ export const useQueryStore = create<QueryStore>((set) => ({
   toggleTheme: () =>
   set((state) => ({
     theme: state.theme === "dark" ? "light" : "dark",
+  })),
+
+  reorderChildren: (groupId, activeId, overId) =>
+  set((state) => ({
+    rootGroup: reorderGroupChildren(
+      state.rootGroup,
+      groupId,
+      activeId,
+      overId,
+    ),
   })),
 
   setSelectedSchema: (id) =>
