@@ -58,6 +58,10 @@ export default function Home() {
       className={`min-h-screen bg-(--app-bg) text-(--text-primary) ${
         theme === "dark" ? "theme-dark" : "theme-light"
       }`}
+      style={{
+        backgroundColor: "var(--app-bg)",
+        color: "var(--text-primary)",
+      }}
     >
       <div className="grid min-h-screen grid-cols-[240px_1fr]">
         <SidePanel />

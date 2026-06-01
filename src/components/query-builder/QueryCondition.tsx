@@ -19,6 +19,7 @@ import ValueInput from "./ValueInput";
 type QueryConditionProps = {
   condition: ConditionNode;
   error?: string;
+  hideDragHandle?: boolean;
 };
 
 const EMPTY_OPERATORS: QueryOperator[] = [];
@@ -38,7 +39,7 @@ const getDefaultValueForField = (
 };
 
 export default function QueryCondition({
-  condition, error,
+  condition, error, hideDragHandle = false,
 }: QueryConditionProps) {
   const removeNode = useQueryStore((state) => state.removeNode);
 
@@ -134,7 +135,9 @@ export default function QueryCondition({
          error ? "border-rose-500/60" : "border-slate-800"
          }`}
     >
-      <GripVertical size={16} className="text-slate-500" />
+      {!hideDragHandle && (
+        <GripVertical size={16} className="text-slate-500" />
+      )}
 
      <div className="flex-1">
       <div className={conditionGridClass}>
