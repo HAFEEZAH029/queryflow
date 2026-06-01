@@ -1,7 +1,9 @@
 "use client";
 
-import { Keyboard, Moon, Play, Save, Search, UserCircle } from "lucide-react";
+import { Keyboard, Moon, Sun, Play, Save, Search, UserCircle } from "lucide-react";
 import { useQueryStore } from "@/store/query-store";
+import { useEffect } from "react";
+
 
 
 const shortcuts = [
@@ -14,7 +16,27 @@ export default function TopBar() {
 
   const runQuery = useQueryStore((state) => state.runQuery);
   const executionStatus = useQueryStore((state) => state.executionStatus);
+  const theme = useQueryStore((state) => state.theme);
+  const toggleTheme = useQueryStore((state) => state.toggleTheme);
 
+  useEffect(() => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.ctrlKey && event.key === "Enter") {
+      event.preventDefault();
+      runQuery();
+    }
+
+    if (event.ctrlKey && event.key.toLowerCase() === "s") {
+      event.preventDefault();
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+ }, [runQuery]);
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-slate-800 bg-slate-900/60 px-4">
@@ -44,6 +66,7 @@ export default function TopBar() {
           className="flex h-9 items-center gap-2 rounded bg-emerald-500 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"
           type="button"
           onClick={runQuery}
+          disabled={executionStatus === "loading"}
         >
           <Play size={15} />
           <span>{executionStatus === "loading" ? "Running..." : "Run"}</span>
@@ -53,10 +76,11 @@ export default function TopBar() {
 
         <button
           aria-label="Toggle theme"
+          onClick={toggleTheme}
           className="flex size-9 items-center justify-center rounded text-slate-300 transition hover:bg-slate-800 hover:text-white"
           type="button"
         >
-          <Moon size={20} />
+          {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
         </button>
 
         <div className="group relative">

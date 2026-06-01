@@ -81,6 +81,36 @@ const removeNodeById = (node: GroupNode, nodeId: string): GroupNode => ({
     ),
 });
 
+type QuerySignatureNode =
+  | Omit<ConditionNode, "id">
+  | (Omit<GroupNode, "id" | "children" | "collapsed"> & {
+      children: QuerySignatureNode[];
+    });
+
+const createQuerySignature = (schemaId: string, rootGroup: GroupNode) => {
+  const normalizeNode = (node: QueryNode): QuerySignatureNode => {
+    if (node.type === "condition") {
+      return {
+        type: node.type,
+        field: node.field,
+        operator: node.operator,
+        value: node.value,
+      };
+    }
+
+    return {
+      type: node.type,
+      logic: node.logic,
+      children: node.children.map(normalizeNode),
+    };
+  };
+
+  return JSON.stringify({
+    schemaId,
+    rootGroup: normalizeNode(rootGroup),
+  });
+};
+
 export type QueryHistoryItem = {
   id: string;
   schemaId: string;
@@ -105,6 +135,10 @@ type QueryStore = {
   results: Record<string, string | number | boolean>[];
   runQuery: () => void;
   toggleCollapsed: (groupId: string) => void;
+  setRootGroup: (rootGroup: GroupNode) => void;
+  setExecutionStatus: (
+    status: "idle" | "loading" | "success" | "empty" | "error",
+  ) => void;
   updateConditionField: (conditionId: string, field: string) => void;
   updateConditionOperator: (
     conditionId: string,
@@ -114,6 +148,8 @@ type QueryStore = {
   history: QueryHistoryItem[];
   loadPreset: (presetId: string) => void;
   restoreHistoryItem: (historyId: string) => void;
+  theme: "dark" | "light";
+  toggleTheme: () => void;
 };
 
 export const useQueryStore = create<QueryStore>((set) => ({
@@ -126,6 +162,13 @@ export const useQueryStore = create<QueryStore>((set) => ({
   history: [],
 
   selectedSchemaId: "users",
+
+  theme: "dark",
+
+  toggleTheme: () =>
+  set((state) => ({
+    theme: state.theme === "dark" ? "light" : "dark",
+  })),
 
   setSelectedSchema: (id) =>
     set({
@@ -179,40 +222,61 @@ export const useQueryStore = create<QueryStore>((set) => ({
       })),
     })),
 
-    runQuery: () =>
-  set((state) => {
-    const activeSchema =
-      schemas.find((schema) => schema.id === state.selectedSchemaId) ?? schemas[0];
+  runQuery: () => {
+  set({ executionStatus: "loading" });
 
-    const validationErrors = validateQuery(state.rootGroup, activeSchema);
+  window.setTimeout(() => {
+    set((state) => {
+      const activeSchema =
+        schemas.find((schema) => schema.id === state.selectedSchemaId) ??
+        schemas[0];
 
-    if (validationErrors.length > 0) {
-      return {
-        executionStatus: "error",
-        results: [],
+      const validationErrors = validateQuery(state.rootGroup, activeSchema);
+
+      if (validationErrors.length > 0) {
+        return {
+          executionStatus: "error",
+          results: [],
+        };
+      }
+
+      const dataset =
+        mockData[state.selectedSchemaId as keyof typeof mockData] ?? [];
+
+      const results = executeQuery(dataset, state.rootGroup);
+
+      const querySignature = createQuerySignature(
+        state.selectedSchemaId,
+        state.rootGroup,
+      );
+
+      const queryExistsInHistory = state.history.some(
+        (item) =>
+          createQuerySignature(item.schemaId, item.rootGroup) ===
+          querySignature,
+      );
+
+      const historyItem: QueryHistoryItem = {
+        id: createId(),
+        schemaId: state.selectedSchemaId,
+        rootGroup: structuredClone(state.rootGroup),
+        resultCount: results.length,
+        createdAt: new Date().toISOString(),
       };
-    }
 
-    const dataset = mockData[state.selectedSchemaId as keyof typeof mockData] ?? [];
-    const results = executeQuery(dataset, state.rootGroup);
+      return {
+        executionStatus: results.length > 0 ? "success" : "empty",
+        results,
+        history: queryExistsInHistory
+          ? state.history
+          : [historyItem, ...state.history].slice(0, 10),
+      };
+    });
+    }, 500);
+   },
 
-    const historyItem: QueryHistoryItem = {
-      id: createId(),
-      schemaId: state.selectedSchemaId,
-      rootGroup: state.rootGroup,
-      resultCount: results.length,
-      createdAt: new Date().toISOString(),
-    };
-
-    return {
-      executionStatus: results.length > 0 ? "success" : "empty",
-      results,
-      history: [historyItem, ...state.history].slice(0, 10),
-    };
-  }),
-
-  loadPreset: (presetId) =>
-  set(() => {
+    loadPreset: (presetId) =>
+    set(() => {
     const preset = presets.find((item) => item.id === presetId);
 
     if (!preset) return {};
@@ -246,6 +310,18 @@ restoreHistoryItem: (historyId) =>
         collapsed: !group.collapsed,
       })),
     })),
+
+  setRootGroup: (rootGroup) =>
+  set({
+    rootGroup,
+    executionStatus: "idle",
+    results: [],
+  }),
+
+setExecutionStatus: (status) =>
+  set({
+    executionStatus: status,
+  }),
 
   updateConditionField: (conditionId, field) =>
     set((state) => ({
