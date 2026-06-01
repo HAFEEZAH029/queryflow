@@ -2,7 +2,6 @@
 
 import {
   ChevronDown,
-  ChevronRight,
   GripVertical,
   Plus,
   Trash2,
@@ -127,7 +126,7 @@ export default function QueryGroup({
     <div
       className={`rounded-lg border bg-slate-950/60 p-3 ${
         groupError ? "border-rose-500/50" : "border-slate-700"
-      }`}
+      } transition-colors duration-200`}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -136,14 +135,16 @@ export default function QueryGroup({
           <button
             type="button"
             onClick={() => toggleCollapsed(group.id)}
-            className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
+            className="rounded p-1 text-slate-400 transition-colors duration-200 hover:bg-slate-800 hover:text-white"
             aria-label={group.collapsed ? "Expand group" : "Collapse group"}
+            aria-expanded={!group.collapsed}
           >
-            {group.collapsed ? (
-              <ChevronRight size={16} />
-            ) : (
-              <ChevronDown size={16} />
-            )}
+            <ChevronDown
+              size={16}
+              className={`transition-transform duration-200 ease-out ${
+                group.collapsed ? "-rotate-90" : "rotate-0"
+              }`}
+            />
           </button>
 
           <button
@@ -175,51 +176,64 @@ export default function QueryGroup({
         <p className="mt-3 text-xs text-rose-300">{groupError.message}</p>
       )}
 
-      {!group.collapsed && (
-        <div className="mt-3 space-y-2 border-l border-slate-800 pl-3">
-          <DndContext
-            id={`query-group-${dndPath}`}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={childIds}
-              strategy={verticalListSortingStrategy}
+      <div
+        className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out ${
+          group.collapsed
+            ? "mt-0 grid-rows-[0fr] opacity-0"
+            : "mt-3 grid-rows-[1fr] opacity-100"
+        }`}
+        aria-hidden={group.collapsed}
+      >
+        <div
+          className={`min-h-0 overflow-hidden ${
+            group.collapsed ? "pointer-events-none" : ""
+          }`}
+        >
+          <div className="space-y-2 border-l border-slate-800 pl-3">
+            <DndContext
+              id={`query-group-${dndPath}`}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
             >
-              <div className="space-y-2">
-                {group.children.map((child, index) => (
-                  <SortableQueryNode
-                    key={child.id}
-                    node={child}
-                    validationErrors={validationErrors}
-                    dndPath={`${dndPath}-${index}`}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
+              <SortableContext
+                items={childIds}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {group.children.map((child, index) => (
+                    <SortableQueryNode
+                      key={child.id}
+                      node={child}
+                      validationErrors={validationErrors}
+                      dndPath={`${dndPath}-${index}`}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
 
-          <div className="flex flex-wrap gap-2 pt-2">
-            <button
-              type="button"
-              onClick={() => addCondition(group.id)}
-              className="flex items-center gap-2 rounded border border-slate-700 px-3 py-2 text-sm text-slate-300 hover:border-emerald-400 hover:text-emerald-300"
-            >
-              <Plus size={15} />
-              Add Condition
-            </button>
+            <div className="flex flex-wrap gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => addCondition(group.id)}
+                className="flex items-center gap-2 rounded border border-slate-700 px-3 py-2 text-sm text-slate-300 transition-colors duration-200 hover:border-emerald-400 hover:text-emerald-300"
+              >
+                <Plus size={15} />
+                Add Condition
+              </button>
 
-            <button
-              type="button"
-              onClick={() => addGroup(group.id)}
-              className="flex items-center gap-2 rounded border border-slate-700 px-3 py-2 text-sm text-slate-300 hover:border-indigo-400 hover:text-indigo-300"
-            >
-              <Plus size={15} />
-              Add Group
-            </button>
+              <button
+                type="button"
+                onClick={() => addGroup(group.id)}
+                className="flex items-center gap-2 rounded border border-slate-700 px-3 py-2 text-sm text-slate-300 transition-colors duration-200 hover:border-indigo-400 hover:text-indigo-300"
+              >
+                <Plus size={15} />
+                Add Group
+              </button>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
