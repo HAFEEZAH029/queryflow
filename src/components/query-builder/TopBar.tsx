@@ -8,8 +8,8 @@ import { useEffect } from "react";
 
 const shortcuts = [
   { action: "Run Query", keys: "Ctrl + Enter" },
-  { action: "Save", keys: "Ctrl + S" },
-  { action: "Undo", keys: "Ctrl + Z" },
+  { action: "Export JSON", keys: "Ctrl + S" },
+  { action: "Import JSON", keys: "Ctrl + I" },
 ];
 
 export default function TopBar() {
