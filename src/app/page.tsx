@@ -17,6 +17,7 @@ import QueryPreview from "@/components/query-builder/QueryPreview";
 import QueryBuilder from "@/components/query-builder/QueryBuilder";
 import { useQueryStore } from "@/store/query-store";
 import ResultPanel from "@/components/query-builder/ResultPanel";
+import HistoryPanel from "@/components/query-builder/HistoryPanel";
 
 
 
@@ -129,6 +130,7 @@ export default function Home() {
               </div>
 
               <ResultPanel />
+              <HistoryPanel />
             </section>
 
             <aside className="flex border-l border-slate-800 bg-slate-950/80">

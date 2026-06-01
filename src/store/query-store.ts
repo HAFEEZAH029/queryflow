@@ -11,7 +11,7 @@ import { schemas } from "@/data/schema";
 import { mockData } from "@/data/mock-data";
 import { validateQuery } from "@/lib/query-engine/validate-query";
 import { executeQuery } from "@/lib/query-engine/execute-query";
-
+import { presets } from "@/data/presets";
 
 
 
@@ -81,6 +81,14 @@ const removeNodeById = (node: GroupNode, nodeId: string): GroupNode => ({
     ),
 });
 
+export type QueryHistoryItem = {
+  id: string;
+  schemaId: string;
+  rootGroup: GroupNode;
+  resultCount: number;
+  createdAt: string;
+};
+
 type QueryStore = {
   rootGroup: GroupNode;
   selectedSchemaId: string;
@@ -103,6 +111,9 @@ type QueryStore = {
     operator: QueryOperator,
   ) => void;
   updateConditionValue: (conditionId: string, value: QueryValue) => void;
+  history: QueryHistoryItem[];
+  loadPreset: (presetId: string) => void;
+  restoreHistoryItem: (historyId: string) => void;
 };
 
 export const useQueryStore = create<QueryStore>((set) => ({
@@ -111,6 +122,8 @@ export const useQueryStore = create<QueryStore>((set) => ({
   executionStatus: "idle",
 
   results: [],
+
+  history: [],
 
   selectedSchemaId: "users",
 
@@ -183,9 +196,46 @@ export const useQueryStore = create<QueryStore>((set) => ({
     const dataset = mockData[state.selectedSchemaId as keyof typeof mockData] ?? [];
     const results = executeQuery(dataset, state.rootGroup);
 
+    const historyItem: QueryHistoryItem = {
+      id: createId(),
+      schemaId: state.selectedSchemaId,
+      rootGroup: state.rootGroup,
+      resultCount: results.length,
+      createdAt: new Date().toISOString(),
+    };
+
     return {
       executionStatus: results.length > 0 ? "success" : "empty",
       results,
+      history: [historyItem, ...state.history].slice(0, 10),
+    };
+  }),
+
+  loadPreset: (presetId) =>
+  set(() => {
+    const preset = presets.find((item) => item.id === presetId);
+
+    if (!preset) return {};
+
+    return {
+      selectedSchemaId: preset.schemaId,
+      rootGroup: structuredClone(preset.rootGroup),
+      executionStatus: "idle",
+      results: [],
+    };
+  }),
+
+restoreHistoryItem: (historyId) =>
+  set((state) => {
+    const historyItem = state.history.find((item) => item.id === historyId);
+
+    if (!historyItem) return {};
+
+    return {
+      selectedSchemaId: historyItem.schemaId,
+      rootGroup: structuredClone(historyItem.rootGroup),
+      executionStatus: "idle",
+      results: [],
     };
   }),
 
