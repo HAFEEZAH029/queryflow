@@ -312,36 +312,55 @@ export default function Home() {
             </button>
           </aside>
 
-          {activeMobilePanel && (
-            <button
-              type="button"
-              className="fixed inset-0 z-30 cursor-default bg-slate-950/45"
-              aria-label="Close open panel"
-              onClick={() => setActiveMobilePanel(null)}
+          <button
+            type="button"
+            className={`fixed inset-0 z-30 cursor-default bg-slate-950/45 transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              activeMobilePanel
+                ? "pointer-events-auto opacity-100"
+                : "pointer-events-none opacity-0"
+            }`}
+            aria-label="Close open panel"
+            aria-hidden={!activeMobilePanel}
+            tabIndex={activeMobilePanel ? 0 : -1}
+            onClick={() => setActiveMobilePanel(null)}
+          />
+
+          <div
+            className={`fixed bottom-0 left-14 top-0 z-40 w-[min(82vw,280px)] transform-gpu shadow-2xl shadow-slate-950/60 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              activeMobilePanel === "menu"
+                ? "pointer-events-auto translate-x-0 opacity-100"
+                : "pointer-events-none -translate-x-full opacity-0"
+            }`}
+            aria-hidden={activeMobilePanel !== "menu"}
+          >
+            <SidePanel />
+          </div>
+
+          <div
+            className={`fixed bottom-0 left-14 top-0 z-40 w-[min(82vw,320px)] transform-gpu shadow-2xl shadow-slate-950/60 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              activeMobilePanel === "schema"
+                ? "pointer-events-auto translate-x-0 opacity-100"
+                : "pointer-events-none -translate-x-full opacity-0"
+            }`}
+            aria-hidden={activeMobilePanel !== "schema"}
+          >
+            <SchemaPanel
+              activeSchema={activeSchema}
+              selectedSchemaId={selectedSchemaId}
+              setSelectedSchema={setSelectedSchema}
             />
-          )}
+          </div>
 
-          {activeMobilePanel === "menu" && (
-            <div className="fixed bottom-0 left-14 top-0 z-40 w-[min(82vw,280px)] shadow-2xl shadow-slate-950/60">
-              <SidePanel />
-            </div>
-          )}
-
-          {activeMobilePanel === "schema" && (
-            <div className="fixed bottom-0 left-14 top-0 z-40 w-[min(82vw,320px)] shadow-2xl shadow-slate-950/60">
-              <SchemaPanel
-                activeSchema={activeSchema}
-                selectedSchemaId={selectedSchemaId}
-                setSelectedSchema={setSelectedSchema}
-              />
-            </div>
-          )}
-
-          {activeMobilePanel === "query" && (
-            <aside className="fixed bottom-0 right-0 top-0 z-40 flex w-[min(88vw,420px)] border-l border-slate-800 bg-slate-950/95 shadow-2xl shadow-slate-950/60">
-              {compiledQueryPanel}
-            </aside>
-          )}
+          <aside
+            className={`fixed bottom-0 right-0 top-0 z-40 flex w-[min(88vw,420px)] transform-gpu border-l border-slate-800 bg-slate-950/95 shadow-2xl shadow-slate-950/60 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              activeMobilePanel === "query"
+                ? "pointer-events-auto translate-x-0 opacity-100"
+                : "pointer-events-none translate-x-full opacity-0"
+            }`}
+            aria-hidden={activeMobilePanel !== "query"}
+          >
+            {compiledQueryPanel}
+          </aside>
 
           <section className="flex min-w-0 flex-1 flex-col overflow-y-auto">
             <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-slate-800 bg-slate-900/60 px-3">
