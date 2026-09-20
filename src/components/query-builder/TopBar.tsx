@@ -1,12 +1,43 @@
-import { Keyboard, Moon, Play, Save, Search, UserCircle } from "lucide-react";
+"use client";
+
+import { Keyboard, Moon, Sun, Play, Save, Search, UserCircle } from "lucide-react";
+import { useQueryStore } from "@/store/query-store";
+import { useEffect } from "react";
+
+
 
 const shortcuts = [
   { action: "Run Query", keys: "Ctrl + Enter" },
-  { action: "Save", keys: "Ctrl + S" },
-  { action: "Undo", keys: "Ctrl + Z" },
+  { action: "Export JSON", keys: "Ctrl + S" },
+  { action: "Import JSON", keys: "Ctrl + I" },
 ];
 
 export default function TopBar() {
+
+  const runQuery = useQueryStore((state) => state.runQuery);
+  const executionStatus = useQueryStore((state) => state.executionStatus);
+  const theme = useQueryStore((state) => state.theme);
+  const toggleTheme = useQueryStore((state) => state.toggleTheme);
+
+  useEffect(() => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.ctrlKey && event.key === "Enter") {
+      event.preventDefault();
+      runQuery();
+    }
+
+    if (event.ctrlKey && event.key.toLowerCase() === "s") {
+      event.preventDefault();
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+ }, [runQuery]);
+
   return (
     <header className="flex h-16 items-center justify-between border-b border-slate-800 bg-slate-900/60 px-4">
       <div className="relative w-full max-w-sm">
@@ -34,31 +65,34 @@ export default function TopBar() {
         <button
           className="flex h-9 items-center gap-2 rounded bg-emerald-500 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"
           type="button"
+          onClick={runQuery}
+          disabled={executionStatus === "loading"}
         >
           <Play size={15} />
-          <span>Run</span>
+          <span>{executionStatus === "loading" ? "Running..." : "Run"}</span>
         </button>
 
         <div className="mx-2 h-7 w-px bg-slate-800" />
 
         <button
           aria-label="Toggle theme"
+          onClick={toggleTheme}
           className="flex size-9 items-center justify-center rounded text-slate-300 transition hover:bg-slate-800 hover:text-white"
           type="button"
         >
-          <Moon size={20} />
+          {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
         </button>
 
         <div className="group relative">
           <button
             aria-label="Keyboard shortcuts"
-            className="flex size-9 items-center justify-center rounded text-slate-300 transition hover:bg-slate-800 hover:text-white focus:bg-slate-800 focus:text-white focus:outline-none"
+            className="flex size-9 items-center justify-center rounded text-slate-300 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-slate-800 hover:text-white focus:-translate-y-0.5 focus:bg-slate-800 focus:text-white focus:outline-none"
             type="button"
           >
             <Keyboard size={20} />
           </button>
 
-          <div className="pointer-events-none absolute right-0 top-11 z-20 w-44 rounded border border-slate-700 bg-slate-950 px-3 py-2 opacity-0 shadow-xl shadow-slate-950/50 transition group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
+          <div className="pointer-events-none absolute right-0 top-11 z-20 w-44 origin-top-right translate-y-1 scale-95 rounded border border-slate-700 bg-slate-950 px-3 py-2 opacity-0 shadow-xl shadow-slate-950/50 transition-all duration-200 ease-out group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:scale-100 group-focus-within:opacity-100">
             <p className="mb-2 text-[11px] font-semibold text-slate-400">
               Keyboard Shortcuts
             </p>

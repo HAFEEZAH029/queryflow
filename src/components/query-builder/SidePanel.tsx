@@ -1,3 +1,5 @@
+"use client";
+
 import {
   BookOpen,
   Clock3,
@@ -7,15 +9,18 @@ import {
   LayoutGrid,
   Settings,
 } from "lucide-react";
+import { presets } from "@/data/presets";
+import { useQueryStore } from "@/store/query-store";
 
 export default function SidePanel() {
+  const loadPreset = useQueryStore((state) => state.loadPreset);
+  const historyCount = useQueryStore((state) => state.history.length);
+
   const navItems = [
     { label: "Query", icon: LayoutGrid, active: true },
     { label: "Schema", icon: GitBranch },
-    { label: "History", icon: Clock3 },
+    { label: `History (${historyCount})`, icon: Clock3 },
   ];
-
-  const presets = ["Active Users", "High Value Customers", "Recent Signups"];
 
   return (
     <aside className="flex min-h-screen flex-col border-r border-slate-800 bg-slate-900/70 p-4">
@@ -51,29 +56,24 @@ export default function SidePanel() {
         <div className="mt-3 space-y-1">
           {presets.map((preset) => (
             <button
-              key={preset}
+              key={preset.id}
+              onClick={() => loadPreset(preset.id)}
               className="flex w-full items-center gap-3 rounded px-3 py-2 text-left text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
               type="button"
             >
               <BookOpen size={16} />
-              <span>{preset}</span>
+              <span>{preset.label}</span>
             </button>
           ))}
         </div>
       </div>
 
       <div className="mt-auto space-y-1 border-t border-slate-800 pt-4">
-        <button
-          className="flex w-full items-center gap-3 rounded px-3 py-2 text-left text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
-          type="button"
-        >
+        <button className="flex w-full items-center gap-3 rounded px-3 py-2 text-left text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white" type="button">
           <FileText size={18} />
           <span>Docs</span>
         </button>
-        <button
-          className="flex w-full items-center gap-3 rounded px-3 py-2 text-left text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
-          type="button"
-        >
+        <button className="flex w-full items-center gap-3 rounded px-3 py-2 text-left text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white" type="button">
           <Settings size={18} />
           <span>Settings</span>
         </button>
