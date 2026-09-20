@@ -1,0 +1,30 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "dev",
+    "feature/expand-datasets",
+    "feature/project-documentation",
+    "feature/security-and-testing",
+    "feature/ui-enhancement",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "dev": "main",
+    "feature/expand-datasets": "main",
+    "feature/project-documentation": "main",
+    "feature/security-and-testing": "main",
+    "feature/ui-enhancement": "main",
+    "main": null,
+    "origin": "main"
+  },
+  "order": [
+    "main",
+    "dev",
+    "feature/expand-datasets",
+    "feature/project-documentation",
+    "feature/security-and-testing",
+    "feature/ui-enhancement",
+    "origin"
+  ]
+}
