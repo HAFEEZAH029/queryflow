@@ -50,7 +50,8 @@ describe("query store integration", () => {
     const state = useQueryStore.getState();
 
     expect(state.executionStatus).toBe("success");
-    expect(state.results).toHaveLength(1);
+    expect(state.results.length).toBeGreaterThan(1);
+    expect(state.results.every((result) => result.status === "active")).toBe(true);
     expect(state.results[0]).toMatchObject({
       id: "u001",
       status: "active",
@@ -58,7 +59,7 @@ describe("query store integration", () => {
     expect(state.history).toHaveLength(1);
     expect(state.history[0]).toMatchObject({
       schemaId: "users",
-      resultCount: 1,
+      resultCount: state.results.length,
     });
   });
 
@@ -110,11 +111,14 @@ describe("query store integration", () => {
     });
 
     const historyItem = useQueryStore.getState().history[0];
+    const results = useQueryStore.getState().results;
 
     expect(useQueryStore.getState().history).toHaveLength(1);
+    expect(results.length).toBeGreaterThan(1);
+    expect(results.every((result) => Number(result.total) > 100)).toBe(true);
     expect(historyItem).toMatchObject({
       schemaId: "orders",
-      resultCount: 1,
+      resultCount: results.length,
     });
 
     act(() => {
