@@ -62,7 +62,9 @@
 .theme-dark .bg-slate-950,
 .theme-dark .bg-slate-950\/60,
 .theme-dark .bg-slate-950\/70,
-.theme-dark .bg-slate-950\/80 {
+.theme-dark .bg-slate-950\/80,
+.theme-dark .bg-slate-950\/90,
+.theme-dark .bg-slate-950\/95 {
   background-color: var(--surface-strong) !important;
 }
 
@@ -129,7 +131,9 @@
 .theme-light .bg-slate-950,
 .theme-light .bg-slate-950\/60,
 .theme-light .bg-slate-950\/70,
-.theme-light .bg-slate-950\/80 {
+.theme-light .bg-slate-950\/80,
+.theme-light .bg-slate-950\/90,
+.theme-light .bg-slate-950\/95 {
   background-color: var(--surface) !important;
 }
 
